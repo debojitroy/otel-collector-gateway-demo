@@ -1,0 +1,82 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        cors:
+          allowed_origins:
+            - http://*
+            - https://*
+
+processors:
+  batch/datadog:
+    send_batch_max_size: 1000
+    send_batch_size: 100
+    timeout: 10s
+  batch/new_relic:
+    send_batch_max_size: 1000
+    send_batch_size: 100
+    timeout: 10s
+  filter/cart-service-metrics:
+    error_mode: ignore
+    metrics:
+      include:
+        match_type: strict
+        resource_attributes:
+          - key: service.name
+            value: "cart-service"
+  filter/product-service-metrics:
+    error_mode: ignore
+    metrics:
+      include:
+        match_type: strict
+        resource_attributes:
+          - key: service.name
+            value: "product-service"
+  batch:
+
+exporters:
+  awsemf:
+    region: 'ap-southeast-2'
+    log_group_name: 'OTELSampleGroup'
+    log_stream_name: 'OTELSampleLogStream'
+    namespace: 'OTELSampleMetricNS'
+    dimension_rollup_option: 1
+    log_retention: 60
+  otlphttp/counter:
+    endpoint: http://host.docker.internal:9867
+    compression: none
+    encoding: json
+    tls:
+      insecure: true
+  otlphttp/new_relic:
+    endpoint: https://otlp.nr-data.net
+    tls:
+      insecure: true
+    headers:
+      api-key: ${env:NR_API_KEY}
+  datadog:
+    idle_conn_timeout: 30s
+    api:
+      site: ${env:DD_SITE}
+      key: ${env:DD_API_KEY}
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/counter]
+    metrics/cart-service:
+      receivers: [otlp]
+      processors: [filter/cart-service-metrics, batch/new_relic]
+      exporters: [otlphttp/new_relic]
+    metrics/product-service:
+      receivers: [otlp]
+      processors: [filter/product-service-metrics, batch]
+      exporters: [otlphttp/counter]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/counter]

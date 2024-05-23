@@ -54,7 +54,7 @@ In this use case only **high severity logs** are sent to **Datadog** for **Servi
 
 ### Send normal logs to CloudWatch for Service C
 
-In this use case all **normal logs** are sent to **Datadog** for **Service C**
+In this use case all **normal logs** are sent to **CloudWatch** for **Service C**
 
 ## Tracing Use Cases
 
@@ -65,10 +65,6 @@ In this case it will send **100% of 5xx, 4xx errors** to **NewRelic** for **Serv
 ### Sample 100% of HTTP Errors to Datadog - Service B
 
 In this case it will send **100% of 5xx, 4xx errors** to **Datadog** for **Service B**
-
-### Sample 100% of HTTP Errors to AWS X-Ray - Service C
-
-In this case it will send **100% of 5xx, 4xx errors** to **AWS X-Ray** for **Service C**
 
 ### Sample 100% of HTTP Errors to AWS X-Ray - Service C
 
