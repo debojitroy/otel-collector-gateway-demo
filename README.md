@@ -1,4 +1,4 @@
-# otel-custom-demo
+# OTEL Collector Gateway Demo
 
 Demo Project to showcase the power of OTEL Gateway pattern.
 
