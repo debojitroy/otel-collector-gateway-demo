@@ -38,20 +38,20 @@ processors:
 
 exporters:
   awsemf:
-    region: 'ap-southeast-2'
-    log_group_name: 'OTELSampleGroup'
-    log_stream_name: 'OTELSampleLogStream'
-    namespace: 'OTELSampleMetricNS'
+    region: ${env:AWS_REGION}
+    log_group_name: ${env:CW_LOG_GROUP_NAME}
+    log_stream_name: ${env:CW_LOG_STREAM_NAME}
+    namespace: ${env:CW_METRICS_NAMESPACE}
     dimension_rollup_option: 1
-    log_retention: 60
+    log_retention: 7
   otlphttp/counter:
-    endpoint: http://host.docker.internal:9867
+    endpoint: ${env:OTEL_LOCAL_COUNTER}
     compression: none
     encoding: json
     tls:
       insecure: true
   otlphttp/new_relic:
-    endpoint: https://otlp.nr-data.net
+    endpoint: ${env:NR_SITE}
     tls:
       insecure: true
     headers:
