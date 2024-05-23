@@ -1,0 +1,17 @@
+{
+  "name": "otelcounter",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.577.0",
+    "@aws-sdk/client-timestream-write": "^3.577.0",
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
+}
