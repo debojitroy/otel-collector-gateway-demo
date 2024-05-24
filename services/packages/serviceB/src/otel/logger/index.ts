@@ -9,7 +9,7 @@ const loggerProvider = new LoggerProvider();
 logsAPI.logs.setGlobalLoggerProvider(loggerProvider);
 const logger = logsAPI.logs.getLogger(serviceName);
 
-export const logDebug = (body: string | Record<string, string>, attributes?: Record<string, string>) => {
+export const logDebug = (body: string | Record<string, any>, attributes?: Record<string, string>) => {
     logger.emit({
         severityNumber: logsAPI.SeverityNumber.DEBUG,
         severityText: 'DEBUG',
@@ -18,7 +18,7 @@ export const logDebug = (body: string | Record<string, string>, attributes?: Rec
     });
 }
 
-export const logInfo = (body: string | Record<string, string>, attributes?: Record<string, string>) => {
+export const logInfo = (body: string | Record<string, any>, attributes?: Record<string, string>) => {
     logger.emit({
         severityNumber: logsAPI.SeverityNumber.INFO,
         severityText: 'INFO',
@@ -27,7 +27,7 @@ export const logInfo = (body: string | Record<string, string>, attributes?: Reco
     });
 }
 
-export const logError = (body: string | Record<string, string>, attributes?: Record<string, string>) => {
+export const logError = (body: string | Record<string, any>, attributes?: Record<string, string>) => {
     logger.emit({
         severityNumber: logsAPI.SeverityNumber.ERROR,
         severityText: 'ERROR',
@@ -36,7 +36,7 @@ export const logError = (body: string | Record<string, string>, attributes?: Rec
     });
 }
 
-export const logFatal = (body: string | Record<string, string>, attributes?: Record<string, string>) => {
+export const logFatal = (body: string | Record<string, any>, attributes?: Record<string, string>) => {
     logger.emit({
         severityNumber: logsAPI.SeverityNumber.FATAL,
         severityText: 'FATAL',
