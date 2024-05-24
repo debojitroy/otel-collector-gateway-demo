@@ -8,8 +8,9 @@ const dimension = "service.name"
 const app
     = new Elysia().group("/v1",
             app => app.post("metrics", async ({ body }:any) => {
+                console.log("---------------METRICS START------------------");
                 console.log(JSON.stringify(body));
-
+                console.log("---------------METRICS END------------------");
                 // const bodyTyped: Metrics = body as Metrics;
                 // const resource = getMetricsAggregate(bodyTyped, dimension);
 
@@ -20,7 +21,9 @@ const app
                 // });
                 return new Response(JSON.stringify({message: "OK"}));
         }).post("logs", async ({ body }:any) => {
+                console.log("---------------LOGS START------------------");
                 console.log(JSON.stringify(body));
+                console.log("---------------LOGS END------------------");
 
                 // const bodyTyped: Metrics = body as Metrics;
                 // const resource = getMetricsAggregate(bodyTyped, dimension);
@@ -32,8 +35,9 @@ const app
                 // });
                 return new Response(JSON.stringify({message: "OK"}));
             }).post("traces", async ({ body }:any) => {
+                console.log("---------------TRACES START------------------");
                 console.log(JSON.stringify(body));
-
+                console.log("---------------TRACES END------------------");
                 // const bodyTyped: Metrics = body as Metrics;
                 // const resource = getMetricsAggregate(bodyTyped, dimension);
 
