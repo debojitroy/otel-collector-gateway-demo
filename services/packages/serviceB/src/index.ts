@@ -1,12 +1,11 @@
 import { Elysia } from "elysia";
-import {trace, metrics, type Span} from "@opentelemetry/api";
+import {trace, metrics, type Span, SpanStatusCode} from "@opentelemetry/api";
+import { tracer, meter } from "./otel";
 import {logInfo, logError} from "./otel/logger";
+import {getServiceName} from "./utils";
 
 const port = parseInt(process.env.PORT || "9001");
-const serviceName = process.env.SERVICE_NAME || "serviceB";
-
-const tracer = trace.getTracer(serviceName);
-const meter = metrics.getMeter(serviceName);
+const serviceName = getServiceName();
 
 const pingInvocationsMeter = meter.createCounter('ping_invocations', {
     description: 'Number of ping invocations'
@@ -22,12 +21,16 @@ const app
 
                 logInfo({ endpoint, message: "ping invoked"});
 
+                rootSpan.setStatus({ code: SpanStatusCode.OK });
+                rootSpan.setAttribute("http.status", 200);
                 return new Response(JSON.stringify({message: "pong", serviceName }));
             } catch (err: any) {
                 logError({endpoint, message: err.message,});
 
                 pingInvocationsMeter.add(1, { "ping.success": false });
                 rootSpan.recordException(err);
+                rootSpan.setStatus({ code: SpanStatusCode.ERROR });
+                rootSpan.setAttribute("http.status", 500);
                 return error(500, JSON.stringify({ message: "Something failed !!!", serviceName }));
             } finally {
                 rootSpan.end();

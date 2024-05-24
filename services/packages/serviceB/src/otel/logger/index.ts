@@ -1,7 +1,8 @@
 import logsAPI from "@opentelemetry/api-logs";
 import {LoggerProvider} from "@opentelemetry/sdk-logs";
+import {getServiceName} from "../../utils";
 
-const serviceName = process.env.SERVICE_NAME || "serviceB";
+const serviceName = getServiceName();
 
 const loggerProvider = new LoggerProvider();
 
