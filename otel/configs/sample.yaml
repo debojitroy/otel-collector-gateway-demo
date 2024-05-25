@@ -33,7 +33,7 @@ processors:
         match_type: strict
         resource_attributes:
           - key: service.name
-            value: "product-service"
+            value: "service-C"
   batch:
 
 exporters:
@@ -74,7 +74,7 @@ service:
       exporters: [otlphttp/new_relic]
     metrics/product-service:
       receivers: [otlp]
-      processors: [filter/product-service-metrics, batch]
+      processors: [filter/customer.ts.ts-service-metrics, batch]
       exporters: [otlphttp/counter]
     traces:
       receivers: [otlp]

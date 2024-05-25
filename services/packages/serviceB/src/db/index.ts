@@ -15,7 +15,7 @@ const pg_connection_str = process.env.PG_CONNECTION_STRING;
 let pool: Pool;
 
 const dbProductLookupCounter = meter.createCounter('db_product_lookup', {
-    description: 'Number of product lookup in DB'
+    description: 'Number of customer.ts.ts lookup in DB'
 });
 
 const initialize_pool = () => {
@@ -35,7 +35,7 @@ export const getProduct = async (productId: number, service: string): Promise<Pr
 
     return tracer.startActiveSpan('getProductFromDB', async (dbSpan) => {
         try {
-            logInfo({ productId: productId.toString(), method: "getProduct", message: "Looking for product from DB"});
+            logInfo({ productId: productId.toString(), method: "getProduct", message: "Looking for customer.ts.ts from DB"});
             dbSpan.setAttribute('productId', productId);
             dbSpan.setAttribute('service', service);
 
@@ -62,7 +62,7 @@ export const getProductWithLatency = async (productId: number, delayInMs: number
 
     return tracer.startActiveSpan('getProductWithLatency', async (dbSpan) => {
         try {
-            logInfo({ productId: productId.toString(), method: "getProductWithLatency", message: "Looking for product from DB"});
+            logInfo({ productId: productId.toString(), method: "getProductWithLatency", message: "Looking for customer.ts.ts from DB"});
             dbSpan.setAttribute('productId', productId);
             dbSpan.setAttribute('service', service);
 
@@ -90,7 +90,7 @@ export const getProductWithError = async (productId: number, service: string): P
 
     return tracer.startActiveSpan('getProductWithLatency', async (dbSpan) => {
         try {
-            logInfo({ productId: productId.toString(), method: "getProductWithError", message: "Looking for product from DB"});
+            logInfo({ productId: productId.toString(), method: "getProductWithError", message: "Looking for customer.ts.ts from DB"});
 
             dbSpan.setAttribute('productId', productId);
             dbSpan.setAttribute('service', service);

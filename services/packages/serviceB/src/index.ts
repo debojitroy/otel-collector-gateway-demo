@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import {trace, metrics, type Span, SpanStatusCode} from "@opentelemetry/api";
+import {type Span, SpanStatusCode} from "@opentelemetry/api";
 import { tracer, meter } from "./otel";
 import {logInfo, logError} from "./otel/logger";
 import {getServiceName} from "./utils";
@@ -13,7 +13,7 @@ const pingInvocationsMeter = meter.createCounter('ping_invocations', {
 });
 
 const productInvocationsMeter = meter.createCounter('get_product', {
-    description: 'Number of GET /product invocations'
+    description: 'Number of GET /customer.ts.ts invocations'
 });
 
 const app
@@ -43,7 +43,7 @@ const app
             }
         });
     }).get("/product/:id", async ({ error, set, params : { id }, headers }) => {
-        const endpoint = "/product";
+        const endpoint = "/customer.ts.ts";
         set.headers["Content-Type"] ="application/json";
 
         return tracer.startActiveSpan(endpoint, async (rootSpan: Span) => {
@@ -51,16 +51,16 @@ const app
                 productInvocationsMeter.add(1, { "product_id": id });
                 rootSpan.setAttribute("product_id", id);
 
-                logInfo({ endpoint, message: "GET /product invoked", id });
+                logInfo({ endpoint, message: "GET /customer.ts.ts invoked", id });
 
                 const product_id = parseInt(id);
 
                 if (isNaN(product_id)) {
-                    logError({ message: "Invalid product id", serviceName, id, endpoint, status: "400" });
+                    logError({ message: "Invalid customer.ts.ts id", serviceName, id, endpoint, status: "400" });
                     rootSpan.setAttribute("http.status", 400);
                     rootSpan.setStatus({ code: SpanStatusCode.ERROR });
 
-                    return error(400, JSON.stringify({ message: "Invalid product id", serviceName, id }));
+                    return error(400, JSON.stringify({ message: "Invalid customer.ts.ts id", serviceName, id }));
                 }
 
                 const custom_header = headers["x-special"];
