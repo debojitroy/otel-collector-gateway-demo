@@ -65,8 +65,28 @@ const getClient = async () => {
             }]
         }
 
+        // Bad customer with wrong products
+        const customerC: Customer = {
+            id: 3,
+            name: 'Customer B',
+            orders: [{
+                orderId: 2,
+                lines: [{
+                    productId: 4,
+                    quantity: 2,
+                    amount: 10
+                },
+                    {
+                        productId: 100,
+                        quantity: 1,
+                        amount: 10
+                    }]
+            }]
+        }
+
         await redisClient.set('customer:1', JSON.stringify(customerA));
         await redisClient.set('customer:2', JSON.stringify(customerB));
+        await redisClient.set('customer:3', JSON.stringify(customerC));
     }
     return redisClient;
 };

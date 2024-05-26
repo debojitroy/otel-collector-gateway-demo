@@ -27,7 +27,7 @@ const sdk = new opentelemetry.NodeSDK({
         exportIntervalMillis: 10000, // 10 secs
     }),
     instrumentations: [getNodeAutoInstrumentations()],
-    serviceName: process.env.SERVICE_NAME || "serviceB",
+    serviceName: process.env.SERVICE_NAME || "serviceC",
     logRecordProcessor: new BatchLogRecordProcessor(logExporter),
 });
 

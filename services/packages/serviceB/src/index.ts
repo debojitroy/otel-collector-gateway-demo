@@ -13,7 +13,7 @@ const pingInvocationsMeter = meter.createCounter('ping_invocations', {
 });
 
 const productInvocationsMeter = meter.createCounter('get_product', {
-    description: 'Number of GET /customer.ts.ts invocations'
+    description: 'Number of GET /product/:id invocations'
 });
 
 const app
@@ -43,7 +43,7 @@ const app
             }
         });
     }).get("/product/:id", async ({ error, set, params : { id }, headers }) => {
-        const endpoint = "/customer.ts.ts";
+        const endpoint = `/product/${id}`;
         set.headers["Content-Type"] ="application/json";
 
         return tracer.startActiveSpan(endpoint, async (rootSpan: Span) => {
@@ -51,16 +51,16 @@ const app
                 productInvocationsMeter.add(1, { "product_id": id });
                 rootSpan.setAttribute("product_id", id);
 
-                logInfo({ endpoint, message: "GET /customer.ts.ts invoked", id });
+                logInfo({ endpoint, message: "GET /product invoked", id });
 
                 const product_id = parseInt(id);
 
                 if (isNaN(product_id)) {
-                    logError({ message: "Invalid customer.ts.ts id", serviceName, id, endpoint, status: "400" });
+                    logError({ message: "Invalid product id", serviceName, id, endpoint, status: "400" });
                     rootSpan.setAttribute("http.status", 400);
                     rootSpan.setStatus({ code: SpanStatusCode.ERROR });
 
-                    return error(400, JSON.stringify({ message: "Invalid customer.ts.ts id", serviceName, id }));
+                    return error(400, JSON.stringify({ message: "Invalid product id", serviceName, id }));
                 }
 
                 const custom_header = headers["x-special"];
