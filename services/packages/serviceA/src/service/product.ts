@@ -13,7 +13,7 @@ const getRandomProductHeader = () => {
     return headers[index % 3];
 }
 const productServiceLookupCounter = meter.createCounter('product_service_lookup', {
-    description: 'Number of product lookup from Service B'
+    description: 'Number of products lookup from Service B'
 });
 
 export const getProduct = async (productId: number) => {
