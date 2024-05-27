@@ -34,20 +34,23 @@ export const getProduct = async (productId: number, service: string): Promise<Pr
     dbProductLookupCounter.add(1, {productId: productId, service});
 
     return tracer.startActiveSpan('getProductFromDB', async (dbSpan) => {
+        const traceId = dbSpan.spanContext().traceId;
+        const spanId = dbSpan.spanContext().spanId;
+
         try {
-            logInfo({ productId: productId.toString(), method: "getProduct", message: "Looking for customer.ts.ts from DB"});
+            logInfo({ productId: productId.toString(), method: "getProduct", message: "Looking for customer.ts.ts from DB"}, {}, traceId, spanId);
             dbSpan.setAttribute('productId', productId);
             dbSpan.setAttribute('service', service);
 
             initialize_pool();
 
             const result = await pool.query<Product>("SELECT * FROM products WHERE product_id = $1", [productId]);
-            logInfo({ productId: productId.toString(), method: "getProduct", result_count: result.rows.length.toString()});
+            logInfo({ productId: productId.toString(), method: "getProduct", result_count: result.rows.length.toString()}, {}, traceId, spanId);
 
             dbSpan.setStatus({ code: SpanStatusCode.OK, message: "Results from DB"});
             return result.rows.length > 0 ? result.rows[0] : null;
         } catch (err: any) {
-            logError({ productId: productId.toString(), method: "getProduct", message: err.message});
+            logError({ productId: productId.toString(), method: "getProduct", message: err.message}, {}, traceId, spanId);
             dbSpan.setStatus({ code: SpanStatusCode.ERROR, message: err.message})
             throw err;
         }
@@ -61,8 +64,11 @@ export const getProductWithLatency = async (productId: number, delayInMs: number
     dbProductLookupCounter.add(1, {productId: productId, service});
 
     return tracer.startActiveSpan('getProductWithLatency', async (dbSpan) => {
+        const traceId = dbSpan.spanContext().traceId;
+        const spanId = dbSpan.spanContext().spanId;
+
         try {
-            logInfo({ productId: productId.toString(), method: "getProductWithLatency", message: "Looking for customer.ts.ts from DB"});
+            logInfo({ productId: productId.toString(), method: "getProductWithLatency", message: "Looking for customer.ts.ts from DB"}, {}, traceId, spanId);
             dbSpan.setAttribute('productId', productId);
             dbSpan.setAttribute('service', service);
 
@@ -71,11 +77,11 @@ export const getProductWithLatency = async (productId: number, delayInMs: number
             initialize_pool();
 
             const result = await pool.query<Product>("SELECT * FROM products WHERE product_id = $1", [productId]);
-            logInfo({ productId: productId.toString(), method: "getProductWithLatency", result_count: result.rows.length.toString()});
+            logInfo({ productId: productId.toString(), method: "getProductWithLatency", result_count: result.rows.length.toString()}, {}, traceId, spanId);
 
             return result.rows.length > 0 ? result.rows[0] : null;
         } catch (err: any) {
-            logError({ productId: productId.toString(), method: "getProductWithLatency", message: err.message});
+            logError({ productId: productId.toString(), method: "getProductWithLatency", message: err.message}, {}, traceId, spanId);
             dbSpan.setStatus({ code: SpanStatusCode.ERROR, message: err.message})
             throw err;
         }
@@ -89,8 +95,11 @@ export const getProductWithError = async (productId: number, service: string): P
     dbProductLookupCounter.add(1, {productId: productId, service});
 
     return tracer.startActiveSpan('getProductWithLatency', async (dbSpan) => {
+        const traceId = dbSpan.spanContext().traceId;
+        const spanId = dbSpan.spanContext().spanId;
+
         try {
-            logInfo({ productId: productId.toString(), method: "getProductWithError", message: "Looking for customer.ts.ts from DB"});
+            logInfo({ productId: productId.toString(), method: "getProductWithError", message: "Looking for customer.ts.ts from DB"}, {}, traceId, spanId);
 
             dbSpan.setAttribute('productId', productId);
             dbSpan.setAttribute('service', service);
@@ -98,7 +107,7 @@ export const getProductWithError = async (productId: number, service: string): P
             await delay(500);
 
             const errorMessage = "Failed to acquire DB connection";
-            logError({ productId: productId.toString(), method: "getProductWithLatency", message: errorMessage});
+            logError({ productId: productId.toString(), method: "getProductWithLatency", message: errorMessage}, {}, traceId, spanId);
 
             dbSpan.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage})
             throw new Error(errorMessage);

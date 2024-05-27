@@ -14,9 +14,12 @@ export const getCustomer = async (customerId: number) => {
     customerServiceLookupCounter.add(1);
     const endpoint = `${getCustomerServiceUrl()}/customer/${customerId}`;
 
-    logInfo({ customerId, endpoint, message: "Calling Service C to get customer details" });
-
     return tracer.startActiveSpan(endpoint, async (rootSpan: Span): Promise<CustomerDetails> => {
+        const traceId = rootSpan.spanContext().traceId;
+        const spanId = rootSpan.spanContext().spanId;
+
+        logInfo({ customerId, endpoint, message: "Calling Service C to get customer details" }, {} ,traceId, spanId);
+
         rootSpan.setAttribute("http.url", endpoint);
         rootSpan.setAttribute("http.method", "GET");
         rootSpan.setAttribute("customer_id", customerId);
@@ -29,12 +32,12 @@ export const getCustomer = async (customerId: number) => {
             });
 
             rootSpan.setStatus({ code: SpanStatusCode.OK });
-            logInfo({ customerId, endpoint, message: "Received customer details from Service C" });
+            logInfo({ customerId, endpoint, message: "Received customer details from Service C" }, {} ,traceId, spanId);
             return response.data;
         } catch (e: any) {
             rootSpan.setStatus({ code: SpanStatusCode.ERROR });
             rootSpan.recordException(e);
-            logError({customerId, endpoint, message: "Failed to get customer details from Service C", e });
+            logError({customerId, endpoint, message: "Failed to get customer details from Service C", e }, {} ,traceId, spanId);
 
             throw e;
         } finally {

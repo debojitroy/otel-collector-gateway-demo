@@ -12,20 +12,20 @@ const customer_lookup_counter = meter.createCounter('customer_lookup_counter', {
     description: 'Number of times customer lookup was called'
 });
 
-const productDetailsLookup = async (productId: number) => {
+const productDetailsLookup = async (productId: number, traceId: string, spanId: string) => {
     const productKey = `product:${productId}`;
 
     let product: Product | null = await getItemFromRedis(productKey);
 
     if (product) {
-        logInfo({ productId, message: `Product ${productId} found in cache`});
+        logInfo({ productId, message: `Product ${productId} found in cache`}, {}, traceId, spanId);
         return product;
     }
 
-    logInfo({ productId, message: `Product ${productId} not found in cache`});
+    logInfo({ productId, message: `Product ${productId} not found in cache`}, {}, traceId, spanId);
     product = await getProduct(productId);
 
-    logInfo({ productId, message: `Product ${productId} retrieved from API`});
+    logInfo({ productId, message: `Product ${productId} retrieved from API`}, {}, traceId, spanId);
     await setItemInRedis(productKey, product);
 
     return product
@@ -36,17 +36,19 @@ export const getCustomerDetails = async (customerId: number): Promise<CustomerDe
 
     return tracer.startActiveSpan('getCustomerDetails', async (rootSpan: Span) => {
         let customerDetails: CustomerDetails | null | undefined = null;
+        const traceId = rootSpan.spanContext().traceId;
+        const spanId = rootSpan.spanContext().spanId;
 
         try {
-            logDebug({ customerId, message: "getCustomerDetails::Looking up customer details"});
+            logInfo({ customerId, message: "getCustomerDetails::Looking up customer details"}, {}, traceId, spanId);
             const customer = await getItemFromRedis<Customer>(`customer:${customerId}`);
 
             if (!customer) {
-                logInfo({ customerId, message: "getCustomerDetails::Customer NOT found"});
+                logError({ customerId, message: "getCustomerDetails::Customer NOT found"}, {}, traceId, spanId);
                 return customerDetails;
             }
 
-            logInfo({ customerId, message: "getCustomerDetails::Customer found in cache"});
+            logInfo({ customerId, message: "getCustomerDetails::Customer found in cache"}, {}, traceId, spanId);
 
             customerDetails = {
                 id: customer.id,
@@ -54,7 +56,7 @@ export const getCustomerDetails = async (customerId: number): Promise<CustomerDe
                 orders: [],
             }
 
-            logInfo({ customerId, message: "getCustomerDetails::Looking up product details"});
+            logInfo({ customerId, message: "getCustomerDetails::Looking up product details"}, {}, traceId, spanId);
 
             const productMap = new Map<number, Product | null>();
 
@@ -65,11 +67,11 @@ export const getCustomerDetails = async (customerId: number): Promise<CustomerDe
             });
 
             for (const key of productMap.keys()) {
-                const product = await productDetailsLookup(key);
+                const product = await productDetailsLookup(key, traceId, spanId);
                 productMap.set(key, product);
             }
 
-            logInfo({ customerId, message: "getCustomerDetails::Completing Customer Order Details"});
+            logInfo({ customerId, message: "getCustomerDetails::Completing Customer Order Details"}, {}, traceId, spanId);
 
             customer.orders.forEach((order) => {
                 const orderItem = {
@@ -88,7 +90,7 @@ export const getCustomerDetails = async (customerId: number): Promise<CustomerDe
             rootSpan.setStatus({code: SpanStatusCode.ERROR});
             rootSpan.recordException(err);
 
-            logError({ customerId, message: "Failed get customer details", err });
+            logError({ customerId, message: "Failed get customer details", err }, {}, traceId, spanId);
             throw err;
         } finally {
             rootSpan.end();

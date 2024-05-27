@@ -20,9 +20,12 @@ export const getProduct = async (productId: number) => {
     productServiceLookupCounter.add(1);
     const endpoint = `${getProductServiceUrl()}/product/${productId}`;
 
-    logInfo({ productId, endpoint, message: "Calling Service B to get product details" });
-
     return tracer.startActiveSpan(endpoint, async (rootSpan: Span): Promise<Product> => {
+        const traceId = rootSpan.spanContext().traceId;
+        const spanId = rootSpan.spanContext().spanId;
+
+        logInfo({ productId, endpoint, message: "Calling Service B to get product details" }, {}, traceId, spanId);
+
         const randomHeader = getRandomProductHeader();
         rootSpan.setAttribute("http.url", endpoint);
         rootSpan.setAttribute("http.method", "GET");
@@ -30,7 +33,7 @@ export const getProduct = async (productId: number) => {
         rootSpan.setAttribute("x-special", randomHeader);
 
         try {
-            logInfo({ productId, endpoint, header: randomHeader, message: "Adding x-special header" });
+            logInfo({ productId, endpoint, header: randomHeader, message: "Adding x-special header" }, {}, traceId, spanId);
 
             const response = await axios.get<Product>(endpoint, {
                 headers: {
@@ -40,12 +43,12 @@ export const getProduct = async (productId: number) => {
             });
 
             rootSpan.setStatus({ code: SpanStatusCode.OK });
-            logInfo({ productId, endpoint, header: randomHeader, message: "Received product details from Service B" });
+            logInfo({ productId, endpoint, header: randomHeader, message: "Received product details from Service B" }, {}, traceId, spanId);
             return response.data;
         } catch (e: any) {
             rootSpan.setStatus({ code: SpanStatusCode.ERROR });
             rootSpan.recordException(e);
-            logError({productId, endpoint, header: randomHeader, message: "Failed to get product details from Service B", e });
+            logError({productId, endpoint, header: randomHeader, message: "Failed to get product details from Service B", e }, {}, traceId, spanId);
 
             throw e;
         } finally {

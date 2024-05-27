@@ -17,7 +17,7 @@ const new_products = [1, 2];
 const old_products = [3, 4];
 const bad_products = [4];
 
-const getProductIds = (productFilter: ProductFilters) => {
+const getProductIds = (productFilter: string) => {
     switch (productFilter) {
         case ProductFilters.ALL:
             return all_products;
@@ -27,6 +27,8 @@ const getProductIds = (productFilter: ProductFilters) => {
             return old_products;
         case ProductFilters.BAD:
             return bad_products;
+        default:
+            return [];
     }
 }
 
@@ -34,25 +36,28 @@ const productFilterCounter = meter.createCounter('product_filter', {
     description: 'Calls to Product Filter'
 });
 
-export const getProductsFromService = async (productFilter: ProductFilters) => {
+export const getProductsFromService = async (productFilter: string) => {
     productFilterCounter.add(1, { filter: productFilter.toString() });
     const products: Product[] = [];
 
     return tracer.startActiveSpan('getProductsFromService', async (rootSpan: Span) => {
-        try {
-            logDebug({ filter: productFilter.toString(), message: "getProductsFromService::Looking up products"});
+        const traceId = rootSpan.spanContext().traceId;
+        const spanId = rootSpan.spanContext().spanId;
 
-            await Promise.all(getProductIds(productFilter).map(async (id) => {
-                const product = await getProduct(id);
+        try {
+            logInfo({ filter: productFilter.toString(), message: "getProductsFromService::Looking up products"}, {}, traceId, spanId);
+
+            for (const productId of getProductIds(productFilter)) {
+                const product = await getProduct(productId);
                 products.push(product);
-            }));
+            }
 
             rootSpan.setStatus({code: SpanStatusCode.OK});
         } catch (err: any) {
             rootSpan.setStatus({code: SpanStatusCode.ERROR});
             rootSpan.recordException(err);
 
-            logError({ filter: productFilter.toString(), message: "getProductsFromService::Failed get lookup products", err });
+            logError({ filter: productFilter.toString(), message: "getProductsFromService::Failed get lookup products", err }, {}, traceId, spanId);
             throw err;
         } finally {
             rootSpan.end();

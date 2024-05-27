@@ -18,16 +18,19 @@ const app
         set.headers["Content-Type"] ="application/json";
 
         return tracer.startActiveSpan(endpoint, async (rootSpan: Span) => {
+            const traceId = rootSpan.spanContext().traceId;
+            const spanId = rootSpan.spanContext().spanId;
+
             try {
                 customerInvocationsMeter.add(1, { "customer_id": id });
                 rootSpan.setAttribute("customer_id", id);
 
-                logInfo({ endpoint, message: "GET /customer invoked", id });
+                logInfo({ endpoint, message: "GET /customer invoked", id }, {}, traceId, spanId);
 
                 const customer_id = parseInt(id);
 
                 if (isNaN(customer_id)) {
-                    logError({ message: "Invalid customer id", serviceName, id, endpoint, status: "400" });
+                    logError({ message: "Invalid customer id", serviceName, id, endpoint, status: "400" }, {}, traceId, spanId);
                     rootSpan.setAttribute("http.status", 400);
                     rootSpan.setStatus({ code: SpanStatusCode.ERROR });
 
@@ -37,7 +40,7 @@ const app
                 const customer = await getCustomerDetails(customer_id);
 
                 if (!customer) {
-                    logError({ message: "Customer NOT found", serviceName, id, endpoint, status: "404" });
+                    logError({ message: "Customer NOT found", serviceName, id, endpoint, status: "404" }, {}, traceId, spanId);
                     rootSpan.setAttribute("http.status", 404);
                     rootSpan.setStatus({ code: SpanStatusCode.ERROR });
 
@@ -47,11 +50,11 @@ const app
                 rootSpan.setAttribute("http.status", 200);
                 rootSpan.setStatus({ code: SpanStatusCode.OK });
 
-                logInfo({ endpoint, message: "Customer Found", id, customer });
+                logInfo({ endpoint, message: "Customer Found", id, customer }, {}, traceId, spanId);
 
                 return new Response(JSON.stringify({customer, serviceName }));
             } catch (err: any) {
-                logError({endpoint, message: err.message,});
+                logError({endpoint, message: err.message,}, {}, traceId, spanId);
 
                 rootSpan.recordException(err);
                 rootSpan.setStatus({ code: SpanStatusCode.ERROR });

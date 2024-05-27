@@ -47,16 +47,19 @@ const app
         set.headers["Content-Type"] ="application/json";
 
         return tracer.startActiveSpan(endpoint, async (rootSpan: Span) => {
+            const traceId = rootSpan.spanContext().traceId;
+            const spanId = rootSpan.spanContext().spanId;
+
             try {
                 productInvocationsMeter.add(1, { "product_id": id });
                 rootSpan.setAttribute("product_id", id);
 
-                logInfo({ endpoint, message: "GET /product invoked", id });
+                logInfo({ endpoint, message: "GET /product invoked", id }, {}, traceId, spanId);
 
                 const product_id = parseInt(id);
 
                 if (isNaN(product_id)) {
-                    logError({ message: "Invalid product id", serviceName, id, endpoint, status: "400" });
+                    logError({ message: "Invalid product id", serviceName, id, endpoint, status: "400" }, {}, traceId, spanId);
                     rootSpan.setAttribute("http.status", 400);
                     rootSpan.setStatus({ code: SpanStatusCode.ERROR });
 
@@ -69,7 +72,7 @@ const app
                     custom_header === "error" ? await getProductWithError(product_id, serviceName) : (await getProduct(product_id, serviceName));
 
                 if (!product) {
-                    logError({ message: "Product NOT Found", serviceName, id, endpoint, status: "404" });
+                    logError({ message: "Product NOT Found", serviceName, id, endpoint, status: "404" }, {}, traceId, spanId);
                     rootSpan.setAttribute("http.status", 404);
                     rootSpan.setStatus({ code: SpanStatusCode.ERROR });
 
@@ -79,11 +82,11 @@ const app
                 rootSpan.setAttribute("http.status", 200);
                 rootSpan.setStatus({ code: SpanStatusCode.OK });
 
-                logInfo({ endpoint, message: "Product Found", id, product });
+                logInfo({ endpoint, message: "Product Found", id, product }, {}, traceId, spanId);
 
                 return new Response(JSON.stringify({product, serviceName }));
             } catch (err: any) {
-                logError({endpoint, message: err.message,});
+                logError({endpoint, message: err.message,}, {}, traceId, spanId);
 
                 rootSpan.recordException(err);
                 rootSpan.setStatus({ code: SpanStatusCode.ERROR });

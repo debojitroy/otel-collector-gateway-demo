@@ -94,25 +94,28 @@ const getClient = async () => {
 // generate function to set item in redis with generic type
 export const getItemFromRedis = async <T>(key: string): Promise<T | null> => {
     return tracer.startActiveSpan('getItemFromRedis', async (rootSpan: Span) => {
+        const traceId = rootSpan.spanContext().traceId;
+        const spanId = rootSpan.spanContext().spanId;
+
         try {
-            logDebug({key, message: "Getting item from cache"});
+            logInfo({key, message: "Getting item from cache"}, {}, traceId, spanId);
 
             const client = await getClient();
             const value = await client.get(key);
             if (!value) {
-                logDebug({key, message: "Item not found in cache"});
+                logInfo({key, message: "Item not found in cache"}, {}, traceId, spanId);
                 cache_miss_counter.add(1, {key, service: getServiceName()});
                 return null;
             }
 
-            logDebug({key, message: "Found item in cache"});
+            logInfo({key, message: "Found item in cache"}, {}, traceId, spanId);
             cache_hit_counter.add(1, {key, service: getServiceName()});
             return JSON.parse(value) as T;
         } catch (err: any) {
             rootSpan.setStatus({code: SpanStatusCode.ERROR});
             rootSpan.recordException(err);
 
-            logError({ key, message: "Failed while looking up item in Cache", err });
+            logError({ key, message: "Failed while looking up item in Cache", err }, {}, traceId, spanId);
             throw err;
         }
         finally {
@@ -123,8 +126,11 @@ export const getItemFromRedis = async <T>(key: string): Promise<T | null> => {
 
 export const setItemInRedis = async <T>(key: string, value: T) => {
     return tracer.startActiveSpan('setItemInRedis', async (rootSpan: Span) => {
+        const traceId = rootSpan.spanContext().traceId;
+        const spanId = rootSpan.spanContext().spanId;
+
         try {
-            logDebug({key, message: "Adding item to cache"});
+            logInfo({key, message: "Adding item to cache"}, {}, traceId, spanId);
 
             const client = await getClient();
             cache_set_counter.add(1, {key, service: getServiceName()});
@@ -133,7 +139,7 @@ export const setItemInRedis = async <T>(key: string, value: T) => {
             rootSpan.setStatus({code: SpanStatusCode.ERROR});
             rootSpan.recordException(err);
 
-            logError({ key, message: "Failed while adding item in Cache", err });
+            logError({ key, message: "Failed while adding item in Cache", err }, {}, traceId, spanId);
             throw err;
         }
         finally {

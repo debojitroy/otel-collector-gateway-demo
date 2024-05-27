@@ -1,0 +1,5 @@
+preload = ["./src/otel/instrumentation.ts"]
+
+[define]
+"process.env.PORT"="'9003'"
+"process.env.SERVICE_NAME"="'service-a'"
