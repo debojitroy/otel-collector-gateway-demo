@@ -1,7 +1,7 @@
 #!/bin/bash
 
 docker run -d -p 4317:4317 -p 4318:4318 -p 9464:9464 \
- -v $(pwd)/config.yaml:/etc/otelcol-contrib/config.yaml:ro \
+ -v $OTEL_CONFIG_FOLDER/config.yaml:/etc/otelcol-contrib/config.yaml:ro \
  -e OTEL_LOCAL_COUNTER=$OTEL_LOCAL_COUNTER \
  -e AWS_REGION=$AWS_REGION \
  -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \

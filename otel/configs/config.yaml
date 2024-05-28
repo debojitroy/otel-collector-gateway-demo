@@ -1,0 +1,36 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        cors:
+          allowed_origins:
+            - http://*
+            - https://*
+
+processors:
+  batch:
+
+exporters:
+  otlphttp/counter:
+    endpoint: ${env:OTEL_LOCAL_COUNTER}
+    compression: none
+    encoding: json
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/counter]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/counter]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/counter]

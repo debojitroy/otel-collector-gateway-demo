@@ -5,12 +5,13 @@ import { getTracesAggregate } from "./controllers/traces";
 import {Metrics} from "./types/Metrics";
 import { AbstractExporterPersister  } from "../db/AbstractExporterPersister";
 // import { ConsoleWriter } from "../db/console";
-import { TimestreamWriter } from '../db/timestream';
+// import { TimestreamWriter } from '../db/timestream';
 import {Logs} from "./types/Logs";
 import {Traces} from "./types/Traces";
+import {CloudwatchWriter} from "../db/cloudwatch";
 
 const dimension = "service.name"
-const writer: AbstractExporterPersister = new TimestreamWriter();
+const writer: AbstractExporterPersister = new CloudwatchWriter();
 
 const app
     = new Elysia().group("/v1",
