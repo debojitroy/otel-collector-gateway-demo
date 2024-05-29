@@ -1,0 +1,34 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        cors:
+          allowed_origins:
+            - http://*
+            - https://*
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: basic
+    sampling_initial: 5
+    sampling_thereafter: 100
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

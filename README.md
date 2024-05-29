@@ -18,23 +18,19 @@ We will orchestrate different `export` strategies by just changing `OTEL Collect
 
 ### No external Store
 
-In this use case **nothing is exported** to any external store
+In this use case **nothing is exported** to any external store [no_export.yaml](./otel/configs/no_export.yaml)
 
-### Enable Telemetry counting for - Service A
+### Enable Telemetry counting for all services
 
-In this use case **only counting** is enabled for **Service A**
+In this use case **only counting** is enabled [count_only.yaml](./otel/configs/count_only.yaml)
 
 ### Send metrics to CloudWatch - Service A
 
-In this use case **only metrics** is exported to **CloudWatch**
+In this use case **only metrics** is exported to **CloudWatch** for **Service A** [only_metrics_cw_svc_a.yaml](./otel/configs/only_metrics_cw_svc_a.yaml)
 
 ### Send All telemetry to CloudWatch - Service A
 
-In this use case all **telemetry data** is sent to **CloudWatch**
-
-### Enable Telemetry counting for - Service B and Service C
-
-In this use case only **counting** is enabled for **Service B and C**
+In this use case all **telemetry data** is sent to **CloudWatch** for **Service A** [all_telemetry_cw_svc_a.yaml](./otel/configs/all_telemetry_cw_svc_a.yaml)
 
 ### Enable metrics and traces to NewRelic for Service B
 
@@ -50,7 +46,7 @@ In this use case **only metrics and traces** are sent to **Datadog** for **Servi
 
 ### Enable High severity logs to Datadog for Service C
 
-In this use case only **high severity logs** are sent to **Datadog** for **Service B**
+In this use case only **high severity logs** are sent to **Datadog** for **Service C**
 
 ### Send normal logs to CloudWatch for Service C
 

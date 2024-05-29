@@ -26,22 +26,6 @@ processors:
         resource_attributes:
           - key: service.name
             value: "service-a"
-  filter/service-a-logs:
-    error_mode: ignore
-    logs:
-      include:
-        match_type: strict
-        resource_attributes:
-          - key: service.name
-            value: "service-a"
-  filter/not-service-a-logs:
-    error_mode: ignore
-    metrics:
-      exclude:
-        match_type: strict
-        resource_attributes:
-          - key: service.name
-            value: "service-a"
   batch:
 
 exporters:
@@ -52,14 +36,6 @@ exporters:
     namespace: ${env:CW_METRICS_NAMESPACE}
     dimension_rollup_option: "NoDimensionRollup"
     log_retention: 7
-  awscloudwatchlogs:
-    log_group_name: ${env:CW_LOG_GROUP_NAME}
-    log_stream_name: ${env:CW_LOG_STREAM_NAME}
-    raw_log: true
-    region: ${env:AWS_REGION}
-    log_retention: 7
-  awsxray:
-    region: ${env:AWS_REGION}
   otlphttp/counter:
     endpoint: ${env:OTEL_LOCAL_COUNTER}
     compression: none
@@ -69,13 +45,9 @@ exporters:
 
 service:
   pipelines:
-    logs/service-a:
+    logs:
       receivers: [otlp]
-      processors: [filter/service-a-logs, batch]
-      exporters: [awscloudwatchlogs]
-    logs/others:
-      receivers: [otlp]
-      processors: [filter/not-service-a-logs, batch]
+      processors: [batch]
       exporters: [otlphttp/counter]
     metrics/service-a:
       receivers: [otlp]
@@ -88,4 +60,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [awsxray]
+      exporters: [otlphttp/counter]
