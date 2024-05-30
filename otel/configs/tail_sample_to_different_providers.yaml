@@ -50,82 +50,40 @@ processors:
         resource_attributes:
           - key: service.name
             value: "service-a"
-  tail_sampling/service-a-errors:
+  tail_sampling/service-a:
     decision_wait: 10s
     num_traces: 1000
     expected_new_traces_per_sec: 100
     policies:
       [
         {
-          name: filter_errors_service_a,
-          type: and,
-          and: {
-            and_sub_policy:
-              [
-                {
-                  name: filter_service_a,
-                  type: string_attribute,
-                  string_attribute: { key: "service.name", values: [ "service-a" ] }
-                },
-                {
-                  name: filter_errors,
-                  type: status_code,
-                  status_code: { status_codes: [ ERROR ] }
-                },
-              ]
-          }
+          name: filter_service_a,
+          type: string_attribute,
+          string_attribute: { key: "service.name", values: [ "service-a" ] }
         }
       ]
-  tail_sampling/service-b-errors:
+  tail_sampling/service-b:
     decision_wait: 10s
     num_traces: 1000
     expected_new_traces_per_sec: 100
     policies:
       [
         {
-          name: filter_errors_service_b,
-          type: and,
-          and: {
-            and_sub_policy:
-              [
-                {
-                  name: filter_service_b,
-                  type: string_attribute,
-                  string_attribute: { key: "service.name", values: [ "service-b" ] }
-                },
-                {
-                  name: filter_errors,
-                  type: status_code,
-                  status_code: { status_codes: [ ERROR ] }
-                },
-              ]
-          }
+          name: filter_service_b,
+          type: string_attribute,
+          string_attribute: { key: "service.name", values: [ "service-b" ] }
         }
       ]
-  tail_sampling/service-c-errors:
+  tail_sampling/service-c:
     decision_wait: 10s
     num_traces: 1000
     expected_new_traces_per_sec: 100
     policies:
       [
         {
-          name: filter_errors_service_c,
-          type: and,
-          and: {
-            and_sub_policy:
-              [
-                {
-                  name: filter_service_c,
-                  type: string_attribute,
-                  string_attribute: { key: "service.name", values: [ "service-c" ] }
-                },
-                {
-                  name: filter_errors,
-                  type: status_code,
-                  status_code: { status_codes: [ ERROR ] }
-                },
-              ]
-          }
+          name: filter_service_c,
+          type: string_attribute,
+          string_attribute: { key: "service.name", values: [ "service-c" ] }
         }
       ]
   batch:
@@ -187,13 +145,13 @@ service:
       exporters: [datadog]
     traces/service-a:
       receivers: [otlp]
-      processors: [tail_sampling/service-a-errors, batch]
+      processors: [tail_sampling/service-a, batch]
       exporters: [otlphttp/new_relic]
     traces/service-b:
       receivers: [ otlp ]
-      processors: [ tail_sampling/service-b-errors, batch/datadog ]
+      processors: [ tail_sampling/service-b, batch/datadog ]
       exporters: [ datadog/connector, datadog ]
     traces/service-c:
       receivers: [ otlp ]
-      processors: [ tail_sampling/service-c-errors, batch ]
+      processors: [ tail_sampling/service-c, batch ]
       exporters: [ awsxray ]
